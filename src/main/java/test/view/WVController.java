@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -31,6 +32,9 @@ public class WVController {
 	String _url = Main.class.getResource("index.html").toExternalForm();
 	private ObservableList<Network> networkData = FXCollections
 			.observableArrayList();
+
+	@FXML
+	private TextField _area;
 
 	@FXML
 	private WebView _webView;
@@ -85,12 +89,14 @@ public class WVController {
 	@FXML
 	public void runScr() {
 		System.out.println("Start updating.");
+		_area.setEditable(false);
 		_updTimer.restart();
 	}
 
 	@FXML
 	private void stopScr() {
 		System.out.println("Stop updating.");
+		_area.setEditable(true);
 		_updTimer.stop();
 	}
 
@@ -114,9 +120,16 @@ public class WVController {
 
 	public void process(final Double lon, final Double lat) {
 		networkData.clear();
+		Double area = 0.0;
+		try {
+			area = Double.valueOf(_area.getText());
+		} catch (Exception e) {
+			System.err.println("Area error");
+			e.printStackTrace();
+		}
 
 		LinkedList<Map<String, Object>> request = SQL.get().request(
-				String.format(SQL._REQ, lat, lon, _AREA));
+				String.format(SQL._REQ, lat, lon, area));
 		for (Map<String, Object> map : request) {
 			networkData.add(new Network(map));
 		}
@@ -126,7 +139,7 @@ public class WVController {
 		if (lon.isNaN() || lat.isNaN() || lon == 0.0 || lat == 0.0) {
 			System.out.println("coord is not valid");
 		} else {
-			_jsobj.call("addPoint", lat, lon, _AREA, _track.isSelected());
+			_jsobj.call("addPoint", lat, lon, area, _track.isSelected());
 		}
 	}
 }

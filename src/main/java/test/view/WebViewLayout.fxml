@@ -24,12 +24,12 @@
                            <content>
                               <TableView fx:id="_table" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                                 <columns>
-                                  <TableColumn text="ID" visible="false"/>
+                                  <TableColumn text="ID" visible="false" />
                                   <TableColumn text="BSSID" visible="false" />
                                   <TableColumn text="TIME_SEC" visible="false" />
 								  <TableColumn text="TIME_USEC" visible="false" />
-                                  <TableColumn text="LAT" fx:id="_lat" />
-                                  <TableColumn text="LON" fx:id="_lon" />
+                                  <TableColumn fx:id="_lat" text="LAT" />
+                                  <TableColumn fx:id="_lon" text="LON" />
                                   <TableColumn text="SBD" visible="false" />
                                   <TableColumn text="HEADING" visible="false" />
                                   <TableColumn text="ALT" visible="false" />
@@ -75,6 +75,16 @@
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                              </GridPane.margin>
                                           </Button>
+                                          <TextField fx:id="_area" text="0.00300" GridPane.rowIndex="2">
+                                             <GridPane.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                             </GridPane.margin>
+                                          </TextField>
+                                          <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Area" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                             <GridPane.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                             </GridPane.margin>
+                                          </Label>
                                        </children>
                                        <VBox.margin>
                                           <Insets />

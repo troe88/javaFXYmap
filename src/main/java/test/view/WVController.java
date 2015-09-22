@@ -3,6 +3,7 @@ package test.view;
 import java.time.Duration;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
@@ -18,7 +19,13 @@ public class WVController {
 
 	@FXML
 	private WebView _webView;
+	
+	@FXML
+	private CheckBox _track;
 
+	@FXML
+	private CheckBox _clear;
+	
 	private WebEngine _engine;
 	private JSObject _jsobj;
 	private Gps _gps;
@@ -31,9 +38,8 @@ public class WVController {
 		_engine.load(_url);
 		_engine.setJavaScriptEnabled(true);
 		_jsobj = (JSObject) _webView.getEngine().executeScript("window");
-		_updTimer = FxTimer.runPeriodically(Duration.ofMillis(5000), () -> doSomething());
+		_updTimer = FxTimer.runPeriodically(Duration.ofMillis(5000), () -> addCoordOnMap());
 		_updTimer.stop();
-		
 		_gps = new Gps();
 		new Thread(_gps).start();
 	}
@@ -44,20 +50,26 @@ public class WVController {
 		_updTimer.restart();
 	}
 
-	public void stopScr(){
+	@FXML
+	private void stopScr(){
 		System.out.println("Stop updating.");
 		_updTimer.stop();
 	}
 	
-	private void doSomething() {
-		System.out.println("qwe");
+	@FXML
+	private void clearMap(){
+		_jsobj.call("clearMap");
+	}
+	
+	private void addCoordOnMap() {
+		System.out.println("Try to add coords on map.");
 		Double lon = _gps.getLon();
 		Double lat = _gps.getLat();
 
 		if (lon.isNaN() || lat.isNaN() || lon == 0.0 || lat == 0.0) {
 			System.out.println("coord is not valid");
 		} else {
-			_jsobj.call("addPoint", lat, lon);
+			_jsobj.call("addPoint", lat, lon, _track.isSelected());
 		}
 	}
 }

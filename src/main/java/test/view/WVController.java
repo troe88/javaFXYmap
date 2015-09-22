@@ -8,6 +8,7 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 
 import org.reactfx.util.FxTimer;
+import org.reactfx.util.Timer;
 
 import test.Main;
 import test.utils.Gps;
@@ -19,27 +20,35 @@ public class WVController {
 	private WebView _webView;
 
 	private WebEngine _engine;
-	private JSObject _w;
+	private JSObject _jsobj;
 	private Gps _gps;
+
+	private Timer _updTimer;
 
 	@FXML
 	private void initialize() {
 		_engine = _webView.getEngine();
 		_engine.load(_url);
 		_engine.setJavaScriptEnabled(true);
-		System.out.println(_engine.isJavaScriptEnabled());
+		_jsobj = (JSObject) _webView.getEngine().executeScript("window");
+		_updTimer = FxTimer.runPeriodically(Duration.ofMillis(5000), () -> doSomething());
+		_updTimer.stop();
+		
 		_gps = new Gps();
 		new Thread(_gps).start();
 	}
 
 	@FXML
 	public void runScr() {
-		System.out.println("run scr");
-		_w = (JSObject) _webView.getEngine().executeScript("window");
-		// _w.call("addPoint", "55.76", lat.toString());
-		FxTimer.runPeriodically(Duration.ofMillis(5000), () -> doSomething());
+		System.out.println("Start updating.");
+		_updTimer.restart();
 	}
 
+	public void stopScr(){
+		System.out.println("Stop updating.");
+		_updTimer.stop();
+	}
+	
 	private void doSomething() {
 		System.out.println("qwe");
 		Double lon = _gps.getLon();
@@ -48,7 +57,7 @@ public class WVController {
 		if (lon.isNaN() || lat.isNaN() || lon == 0.0 || lat == 0.0) {
 			System.out.println("coord is not valid");
 		} else {
-			_w.call("addPoint", lat, lon);
+			_jsobj.call("addPoint", lat, lon);
 		}
 	}
 }

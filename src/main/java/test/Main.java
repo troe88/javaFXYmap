@@ -14,7 +14,7 @@ public class Main extends Application {
 	@Override
 	public void start(final Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
-		this.primaryStage.setTitle("Quadric equation calculator");
+		this.primaryStage.setTitle("Network map");
 		Main._main = this;
 
 		_qe = new QuadricEquation(1.0, 3.0, -4.0);

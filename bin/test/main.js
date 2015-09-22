@@ -30,14 +30,14 @@ function test() {
 var myCollection;
 function addPoint(long, lat) {
 	if (myCollection == null) {
-		myCollection = new ymaps.GeoObjectCollection({}, {
-			preset : 'twirl#redIcon',
-			draggable : true
-		});
+		myCollection = new ymaps.GeoObjectCollection();
 	} else {
-		myCollection.removeAll();
+		// myCollection.removeAll();
 	}
 	// var myCircle = new ymaps.Circle([[long, lat], 1000]);
-	myCollection.add(new ymaps.Circle([ [ long, lat ], 1000 ]));
+	myMap.setCenter([ long, lat ], 15, {
+		checkZoomRange : true
+	});
+	myCollection.add(new ymaps.Circle([ [ long, lat ], 10 ]));
 	myMap.geoObjects.add(myCollection);
 }

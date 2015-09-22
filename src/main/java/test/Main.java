@@ -12,7 +12,7 @@ public class Main extends Application {
 	public static QuadricEquation _qe;
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(final Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
 		this.primaryStage.setTitle("Quadric equation calculator");
 		Main._main = this;
@@ -28,7 +28,7 @@ public class Main extends Application {
 		primaryStage.show();
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		launch(args);
 	}
 

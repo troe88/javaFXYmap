@@ -27,9 +27,7 @@ import test.utils.Network;
 import test.utils.SQL;
 
 public class WVController {
-	private static final double _AREA = 0.00300;
-
-	String _url = Main.class.getResource("index.html").toExternalForm();
+	String _url = Main.class.getResource("/index.html").toExternalForm();
 	private ObservableList<Network> networkData = FXCollections
 			.observableArrayList();
 

@@ -12,7 +12,7 @@ import javafx.scene.layout.BorderPane;
 public class LayoutLoader {
 
 	private static List<String> _layoutLocations = new ArrayList<String>(
-			Arrays.asList("view/RootLayout.fxml", "view/QuadricEquationnLayout.fxml", "view/WebViewLayout.fxml"));
+			Arrays.asList("/RootLayout.fxml", "/WebViewLayout.fxml"));
 	private static List<Object> _loadLayouts = new ArrayList<>();
 
 	static {
@@ -32,14 +32,7 @@ public class LayoutLoader {
 		return (BorderPane) _loadLayouts.get(0);
 	}
 
-	public static AnchorPane getQELayout() {
+	public static AnchorPane getWVLayout() {
 		return (AnchorPane) _loadLayouts.get(1);
 	}
-	
-	public static AnchorPane getWVLayout() {
-		return (AnchorPane) _loadLayouts.get(2);
-	}
 }
-
-
-// D = sqrt(b^2 + 4 * a * c)

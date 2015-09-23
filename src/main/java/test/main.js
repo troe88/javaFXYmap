@@ -1,9 +1,16 @@
 var myMap;
+var myCollection;
+var rectCollection;
+var lastPoint;
+
+function testCall(long, lat) {
+	java.test(long, lat);
+}
 
 function test() {
 	ymaps.ready(function() {
 		myMap = new ymaps.Map("YMapsID", {
-			controls : [ "zoomControl", "fullscreenControl" ],
+			controls : [],
 			center : [ 55.76, 37.64 ],
 			zoom : 10
 		}), myGeoObject = new ymaps.GeoObject({
@@ -12,29 +19,17 @@ function test() {
 				coordinates : [ 55.8, 37.8 ]
 			}
 		});
-
-//		var myPlacemark = new ymaps.Placemark([ 55.8, 37.6 ]);
-		myPolyline = new ymaps.Polyline([ [ 55.80, 37.30 ],
-				[ 55.80, 37.40 ], [ 55.70, 37.30 ], [ 55.70, 37.40 ] ]);
-		// var myCircle = new ymaps.Circle([[55.76, 37.64], 10000]);
-
-		// myCircle.events.add('click', function() {
-		// alert('qwe');
-		// });
-
-		// myMap.geoObjects.add(myCircle);
-		// myMap.geoObjects.add(myPlacemark);
-		// myMap.geoObjects.add(myPolyline);
+		myMap.container.enterFullscreen()
+		myMap.events.add('click', function(e) {
+			var coords = e.get('coords');
+			testCall(coords[1], coords[0])
+		});
 	});
 }
 
-var myCollection;
-var lastPoint;
-function addPoint(long, lat, isTracking) {
+function addPoint(long, lat, ds, isTracking) {
 	if (myCollection == null) {
 		myCollection = new ymaps.GeoObjectCollection();
-	} else {
-		// myCollection.removeAll();
 	}
 
 	if (isTracking == true) {
@@ -42,13 +37,21 @@ function addPoint(long, lat, isTracking) {
 			checkZoomRange : true
 		});
 	}
-	lastPoint = new ymaps.Circle([ [ long, lat ], 10 ]);
+
+	lastPoint = new ymaps.Circle([ [ long, lat ], 10 ], {}, {
+		fill : true,
+		fillColor : "#0000FF",
+		stroke : false
+	});
 	myCollection.add(lastPoint);
 	myMap.geoObjects.add(myCollection);
+
+	addRect(long, lat, ds);
 }
 
 function clearMap() {
 	myCollection.removeAll();
+	rectCollection.removeAll();
 }
 
 function centerMap() {
@@ -57,4 +60,22 @@ function centerMap() {
 	myMap.setCenter([ long, lat ], 15, {
 		checkZoomRange : true
 	});
+}
+
+function addRect(long, lat, d) {
+	if (rectCollection == null) {
+		rectCollection = new ymaps.GeoObjectCollection();
+	} else {
+		rectCollection.removeAll();
+	}
+	var myRectangle = new ymaps.Rectangle([ 
+	        [ long - d / 2, lat - d ],
+			[ long + d / 2, lat + d ] ], {}, {
+		strokeWidth : 2,
+		fill : true,
+		fillColor : '#00FF0022',
+		strokeColor : '#00FF00'
+	});
+	rectCollection.add(myRectangle);
+	myMap.geoObjects.add(rectCollection);
 }

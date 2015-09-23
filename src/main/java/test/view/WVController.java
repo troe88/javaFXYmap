@@ -1,7 +1,6 @@
 package test.view;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -27,12 +26,15 @@ import test.utils.Network;
 import test.utils.SQL;
 
 public class WVController {
+	private static final long _DEFAULT_UPD_SPEED = 1000L;
 	String _url = Main.class.getResource("/index.html").toExternalForm();
-	private ObservableList<Network> networkData = FXCollections
-			.observableArrayList();
+	private ObservableList<Network> _networkData = FXCollections.observableArrayList();
 
 	@FXML
 	private TextField _area;
+
+	@FXML
+	private TextField _updSpeed;
 
 	@FXML
 	private WebView _webView;
@@ -66,28 +68,52 @@ public class WVController {
 		_engine.load(_url);
 		_engine.setJavaScriptEnabled(true);
 		_jsobj = (JSObject) _webView.getEngine().executeScript("window");
+
+		initGPS();
+		initBridge();
+
+		_lat.setCellValueFactory(new PropertyValueFactory<Network, Double>("lat"));
+		_lon.setCellValueFactory(new PropertyValueFactory<Network, Double>("lon"));
+		_essid.setCellValueFactory(new PropertyValueFactory<Network, String>("essid"));
+		_table.setItems(_networkData);
+	}
+
+	private void initBridge() {
 		Bridge bridge = new Bridge();
 		_jsobj.setMember("java", bridge);
 		bridge.setWvController(this);
-		_updTimer = FxTimer.runPeriodically(Duration.ofMillis(2000),
-				() -> addCoordOnMap());
-		_updTimer.stop();
-		_gps = new Gps();
-		new Thread(_gps).start();
+	}
 
-		_lat.setCellValueFactory(new PropertyValueFactory<Network, Double>(
-				"lat"));
-		_lon.setCellValueFactory(new PropertyValueFactory<Network, Double>(
-				"lon"));
-		_essid.setCellValueFactory(new PropertyValueFactory<Network, String>(
-				"essid"));
-		_table.setItems(networkData);
+	private void initTimer() {
+		Long t = 0L;
+		try {
+			t = Long.valueOf(_updSpeed.getText());
+		} catch (Exception e) {
+			System.out.println("Update speed error, use default speed " + _DEFAULT_UPD_SPEED);
+			t = _DEFAULT_UPD_SPEED;
+			e.printStackTrace();
+		}
+		_updTimer = FxTimer.runPeriodically(Duration.ofMillis(t), new Runnable() {
+			@Override
+			public void run() {
+				addCoordOnMap();
+			}
+		});
+	}
+
+	private void initGPS() {
+		_gps = new Gps();
+		Thread thread = new Thread(_gps);
+		thread.setDaemon(true);
+		thread.start();
 	}
 
 	@FXML
 	public void runScr() {
 		System.out.println("Start updating.");
+		initTimer();
 		_area.setEditable(false);
+		_updSpeed.setEditable(false);
 		_updTimer.restart();
 	}
 
@@ -95,6 +121,7 @@ public class WVController {
 	private void stopScr() {
 		System.out.println("Stop updating.");
 		_area.setEditable(true);
+		_updSpeed.setEditable(true);
 		_updTimer.stop();
 	}
 
@@ -104,10 +131,8 @@ public class WVController {
 	}
 
 	private void addCoordOnMap() {
-		System.out.println("Try to add coords on map.");
 		Double lon = _gps.getLon();
 		Double lat = _gps.getLat();
-
 		process(lon, lat);
 	}
 
@@ -117,7 +142,8 @@ public class WVController {
 	}
 
 	public void process(final Double lon, final Double lat) {
-		networkData.clear();
+		System.out.println("process...");
+		_networkData.clear();
 		Double area = 0.0;
 		try {
 			area = Double.valueOf(_area.getText());
@@ -126,17 +152,14 @@ public class WVController {
 			e.printStackTrace();
 		}
 
-		LinkedList<Map<String, Object>> request = SQL.get().request(
-				String.format(SQL._REQ, lat, lon, area));
-		for (Map<String, Object> map : request) {
-			networkData.add(new Network(map));
-		}
-
-		System.out.println(Arrays.toString(request.toArray()));
-
 		if (lon.isNaN() || lat.isNaN() || lon == 0.0 || lat == 0.0) {
 			System.out.println("coord is not valid");
 		} else {
+			LinkedList<Map<String, Object>> request = SQL.get().requestNetwork(lat, lon, area);
+			for (Map<String, Object> map : request) {
+				_networkData.add(new Network(map));
+			}
+			System.out.println("Network found: " + request.size());
 			_jsobj.call("addPoint", lat, lon, area, _track.isSelected());
 		}
 	}

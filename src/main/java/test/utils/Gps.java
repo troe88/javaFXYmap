@@ -8,6 +8,8 @@ import de.taimos.gpsd4java.backend.ResultParser;
 import de.taimos.gpsd4java.types.TPVObject;
 
 public class Gps implements Runnable {
+	private static final String _LOCALHOST = "localhost";
+	private int _port = 2947;
 	private Double _lon = 0.0;
 	private Double _lat = 0.0;
 	private GPSdEndpoint _ep;
@@ -19,7 +21,7 @@ public class Gps implements Runnable {
 	}
 
 	public void setLon(final Double lon) {
-		if(lon.isNaN())
+		if (lon.isNaN())
 			return;
 		synchronized (_lon) {
 			_lon = lon;
@@ -27,7 +29,7 @@ public class Gps implements Runnable {
 	}
 
 	public void setLat(final Double lat) {
-		if(lat.isNaN())
+		if (lat.isNaN())
 			return;
 		synchronized (_lat) {
 			_lat = lat;
@@ -43,14 +45,10 @@ public class Gps implements Runnable {
 	@Override
 	public void run() {
 		try {
-			String host = "localhost";
-			int port = 2947;
-			_ep = new GPSdEndpoint(host, port, new ResultParser());
-
+			_ep = new GPSdEndpoint(_LOCALHOST, _port, new ResultParser());
 			_ep.addListener(new ObjectListener() {
 				@Override
 				public void handleTPV(final TPVObject tpv) {
-					System.out.println("111");
 					setLat(tpv.getLatitude());
 					setLon(tpv.getLongitude());
 				}

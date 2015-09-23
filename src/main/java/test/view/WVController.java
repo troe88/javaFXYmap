@@ -7,7 +7,10 @@ import java.util.Map;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -29,7 +32,16 @@ public class WVController {
 	private static final long _DEFAULT_UPD_SPEED = 1000L;
 	String _url = Main.class.getResource("/index.html").toExternalForm();
 	private ObservableList<Network> _networkData = FXCollections.observableArrayList();
-
+	
+	@FXML
+	private ProgressIndicator _pi;
+		
+	@FXML
+	private Button _start;
+	
+	@FXML
+	private Button _stop;
+	
 	@FXML
 	private TextField _area;
 
@@ -76,6 +88,8 @@ public class WVController {
 		_lon.setCellValueFactory(new PropertyValueFactory<Network, Double>("lon"));
 		_essid.setCellValueFactory(new PropertyValueFactory<Network, String>("essid"));
 		_table.setItems(_networkData);
+		_stop.setDisable(true);
+		_pi.setVisible(false);
 	}
 
 	private void initBridge() {
@@ -112,17 +126,22 @@ public class WVController {
 	public void runScr() {
 		System.out.println("Start updating.");
 		initTimer();
+		_start.setDisable(true);
+		_stop.setDisable(false);
 		_area.setEditable(false);
 		_updSpeed.setEditable(false);
-		_updTimer.restart();
+		_pi.setVisible(true);
 	}
 
 	@FXML
 	private void stopScr() {
 		System.out.println("Stop updating.");
+		_updTimer.stop();
 		_area.setEditable(true);
 		_updSpeed.setEditable(true);
-		_updTimer.stop();
+		_start.setDisable(false);
+		_stop.setDisable(true);
+		_pi.setVisible(false);
 	}
 
 	@FXML

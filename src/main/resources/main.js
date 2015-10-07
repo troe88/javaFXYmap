@@ -27,7 +27,7 @@ function test() {
 	});
 }
 
-function addPoint(long, lat, ds, isTracking) {
+function addPoint(long, lat, ds, isTracking, color) {
 	if (myCollection == null) {
 		myCollection = new ymaps.GeoObjectCollection();
 	}
@@ -40,7 +40,7 @@ function addPoint(long, lat, ds, isTracking) {
 
 	lastPoint = new ymaps.Circle([ [ long, lat ], 10 ], {}, {
 		fill : true,
-		fillColor : "#0000FF",
+		fillColor : color,
 		stroke : false
 	});
 	myCollection.add(lastPoint);

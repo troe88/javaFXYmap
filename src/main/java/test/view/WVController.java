@@ -9,7 +9,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -26,22 +25,24 @@ import test.Main;
 import test.utils.Bridge;
 import test.utils.Gps;
 import test.utils.Network;
+import test.utils.PingTest;
 import test.utils.SQL;
 
 public class WVController {
 	private static final long _DEFAULT_UPD_SPEED = 1000L;
 	String _url = Main.class.getResource("/index.html").toExternalForm();
-	private ObservableList<Network> _networkData = FXCollections.observableArrayList();
-	
+	private ObservableList<Network> _networkData = FXCollections
+			.observableArrayList();
+
 	@FXML
 	private ProgressIndicator _pi;
-		
+
 	@FXML
 	private Button _start;
-	
+
 	@FXML
 	private Button _stop;
-	
+
 	@FXML
 	private TextField _area;
 
@@ -73,6 +74,7 @@ public class WVController {
 	private JSObject _jsobj;
 	private Gps _gps;
 	private Timer _updTimer;
+	private PingTest _pingTest;
 
 	@FXML
 	private void initialize() {
@@ -83,13 +85,25 @@ public class WVController {
 
 		initGPS();
 		initBridge();
+		initPing();
 
-		_lat.setCellValueFactory(new PropertyValueFactory<Network, Double>("lat"));
-		_lon.setCellValueFactory(new PropertyValueFactory<Network, Double>("lon"));
-		_essid.setCellValueFactory(new PropertyValueFactory<Network, String>("essid"));
+		_lat.setCellValueFactory(new PropertyValueFactory<Network, Double>(
+				"lat"));
+		_lon.setCellValueFactory(new PropertyValueFactory<Network, Double>(
+				"lon"));
+		_essid.setCellValueFactory(new PropertyValueFactory<Network, String>(
+				"essid"));
 		_table.setItems(_networkData);
 		_stop.setDisable(true);
 		_pi.setVisible(false);
+
+	}
+
+	private void initPing() {
+		_pingTest = new PingTest();
+		Thread thread = new Thread(_pingTest);
+		thread.setDaemon(true);
+		thread.start();
 	}
 
 	private void initBridge() {
@@ -103,16 +117,18 @@ public class WVController {
 		try {
 			t = Long.valueOf(_updSpeed.getText());
 		} catch (Exception e) {
-			System.out.println("Update speed error, use default speed " + _DEFAULT_UPD_SPEED);
+			System.out.println("Update speed error, use default speed "
+					+ _DEFAULT_UPD_SPEED);
 			t = _DEFAULT_UPD_SPEED;
 			e.printStackTrace();
 		}
-		_updTimer = FxTimer.runPeriodically(Duration.ofMillis(t), new Runnable() {
-			@Override
-			public void run() {
-				addCoordOnMap();
-			}
-		});
+		_updTimer = FxTimer.runPeriodically(Duration.ofMillis(t),
+				new Runnable() {
+					@Override
+					public void run() {
+						addCoordOnMap();
+					}
+				});
 	}
 
 	private void initGPS() {
@@ -174,12 +190,24 @@ public class WVController {
 		if (lon.isNaN() || lat.isNaN() || lon == 0.0 || lat == 0.0) {
 			System.out.println("coord is not valid");
 		} else {
-			LinkedList<Map<String, Object>> request = SQL.get().requestNetwork(lat, lon, area);
+			LinkedList<Map<String, Object>> request = SQL.get().requestNetwork(
+					lat, lon, area);
 			for (Map<String, Object> map : request) {
 				_networkData.add(new Network(map));
 			}
 			System.out.println("Network found: " + request.size());
-			_jsobj.call("addPoint", lat, lon, area, _track.isSelected());
+			_jsobj.call("addPoint", lat, lon, area, _track.isSelected(),
+					genColor());
 		}
+	}
+
+	private String genColor() {
+		String color = "#000000";
+		if (_pingTest.getIsReacheble()) {
+			color = "#0000FF";
+		} else {
+			color = "#FF0000";
+		}
+		return color;
 	}
 }

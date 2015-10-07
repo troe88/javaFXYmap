@@ -14,10 +14,8 @@ public class PingTest implements Runnable {
 	LinkedBlockingDeque<Boolean> _q = new LinkedBlockingDeque<>();
 
 	public boolean getIsReacheble() {
-		int r = 0;
-		for (Boolean i : _q) if (i) r++;
-		if(r >= _q.size() / 2){
-			return true;
+		for (Boolean i : _q) {
+			if(i) return true;
 		}
 		return false;
 	}
@@ -30,11 +28,11 @@ public class PingTest implements Runnable {
 				Process p1 = getRuntime().exec("ping -c 1 " + ADR);
 				boolean res = p1.waitFor(DELAY, TimeUnit.MILLISECONDS);
 
-				if (_q.size() >= 10) {
+				if (_q.size() >= 3) {
 					_q.removeLast();
 				}
 
-				_q.add(res);
+				_q.addFirst(res);
 				_isReacheble.set(res);
 				System.out.println(_isReacheble.get());
 			} catch (Exception e) {

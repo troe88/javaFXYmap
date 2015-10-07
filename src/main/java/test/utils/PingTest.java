@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PingTest implements Runnable {
-	private static final int DELAY = 1;
+	private static final int DELAY = 500;
 	private static final String ADR = "8.8.8.8";
 	public AtomicBoolean _isReacheble = new AtomicBoolean(false);
 	
@@ -22,7 +22,7 @@ public class PingTest implements Runnable {
 			try {
 				TimeUnit.SECONDS.sleep(1);
 				Process p1 = getRuntime().exec("ping -c 1 " + ADR);
-				_isReacheble.set(p1.waitFor(DELAY, TimeUnit.SECONDS));
+				_isReacheble.set(p1.waitFor(DELAY, TimeUnit.MILLISECONDS));
 				System.out.println(_isReacheble.get());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

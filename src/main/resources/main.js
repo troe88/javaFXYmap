@@ -30,28 +30,32 @@ function test() {
 function addPoint(long, lat, ds, isTracking, color) {
 	if (myCollection == null) {
 		myCollection = new ymaps.GeoObjectCollection();
+		myMap.geoObjects.add(myCollection);
 	}
 
 	if (isTracking == true) {
-		myMap.setCenter([ long, lat ], 15, {
+		myMap.setCenter([ long, lat ], 18, {
 			checkZoomRange : true
 		});
 	}
 
-	lastPoint = new ymaps.Circle([ [ long, lat ], 10 ], {}, {
+	lastPoint = new ymaps.Circle([ [ long, lat ], 2 ], {}, {
 		fill : true,
 		fillColor : color,
 		stroke : false
 	});
 	myCollection.add(lastPoint);
-	myMap.geoObjects.add(myCollection);
 
-	addRect(long, lat, ds);
+	// addRect(long, lat, ds);
 }
 
 function clearMap() {
-	myCollection.removeAll();
-	rectCollection.removeAll();
+	if (myCollection != null) {
+		myCollection.removeAll();
+	}
+	if (rectCollection != null) {
+		rectCollection.removeAll();
+	}
 }
 
 function centerMap() {
@@ -68,8 +72,7 @@ function addRect(long, lat, d) {
 	} else {
 		rectCollection.removeAll();
 	}
-	var myRectangle = new ymaps.Rectangle([ 
-	        [ long - d / 2, lat - d ],
+	var myRectangle = new ymaps.Rectangle([ [ long - d / 2, lat - d ],
 			[ long + d / 2, lat + d ] ], {}, {
 		strokeWidth : 2,
 		fill : true,

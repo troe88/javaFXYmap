@@ -18,15 +18,22 @@ public class SQL {
 	private static Statement _statement;
 	private static ResultSet _resultSet;
 	private static SQL _instance;
-	public final static String _REQ = "select essid, bssid, avg(signal_dbm), lat, lon" + "	from rawdata"
-			+ " where(lat > (%1$f - %3$f)" + " and   lat < (%1$f + %3$f / 2))" + " and  (lon > (%2$f - %3$f)"
-			+ " and   lon < (%2$f + %3$f / 2))" + " group by bssid" + " order by avg(signal_dbm)";
+	public final static String _REQ = "select essid, bssid, avg(signal_dbm), lat, lon"
+			+ "	from rawdata"
+			+ " where(lat > (%1$f - %3$f)"
+			+ " and   lat < (%1$f + %3$f / 2))"
+			+ " and  (lon > (%2$f - %3$f)"
+			+ " and   lon < (%2$f + %3$f / 2))"
+			+ " group by bssid"
+			+ " order by avg(signal_dbm)";
 
 	private SQL() {
 		try {
 			_connection = DriverManager.getConnection(url, user, password);
 			_statement = _connection.createStatement();
 		} catch (SQLException e) {
+			_connection = null;
+			_statement = null;
 			e.printStackTrace();
 		}
 	}
@@ -63,7 +70,8 @@ public class SQL {
 			while (_resultSet.next()) {
 				Map<String, Object> columns = new HashMap<String, Object>();
 				for (int i = 1; i <= cc; i++) {
-					columns.put(_resultSet.getMetaData().getColumnLabel(i), _resultSet.getObject(i));
+					columns.put(_resultSet.getMetaData().getColumnLabel(i),
+							_resultSet.getObject(i));
 				}
 				res.add(columns);
 			}
@@ -75,7 +83,8 @@ public class SQL {
 		return res;
 	}
 
-	public LinkedList<Map<String, Object>> requestNetwork(Double lat, Double lon, Double area) {
+	public LinkedList<Map<String, Object>> requestNetwork(final Double lat,
+			final Double lon, final Double area) {
 		return request(String.format(_REQ, lat, lon, area));
 	}
 }

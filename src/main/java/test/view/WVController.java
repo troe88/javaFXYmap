@@ -190,12 +190,16 @@ public class WVController {
 		if (lon.isNaN() || lat.isNaN() || lon == 0.0 || lat == 0.0) {
 			System.out.println("coord is not valid");
 		} else {
+			try {
 			LinkedList<Map<String, Object>> request = SQL.get().requestNetwork(
 					lat, lon, area);
 			for (Map<String, Object> map : request) {
 				_networkData.add(new Network(map));
 			}
 			System.out.println("Network found: " + request.size());
+			} catch(Exception e) {
+				System.err.println("Don't have connection to MySQL.");
+			}
 			_jsobj.call("addPoint", lat, lon, area, _track.isSelected(),
 					genColor());
 		}

@@ -1,5 +1,7 @@
 package test;
 
+import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -24,8 +26,8 @@ public class Main extends Application {
 		primaryStage.show();
 	}
 
-	public static void main(final String[] args) {
-		launch(args);
+	public static void main(final String[] args) throws IOException {
+		 launch(args);
 	}
 
 	public static Main get_main() {
